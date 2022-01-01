@@ -1,5 +1,6 @@
+mod macros;
 mod html;
-mod tags;
+
+pub mod tags;
 
 pub use html::*;
-pub use tags::*;
