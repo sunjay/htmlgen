@@ -1,8 +1,7 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-}
+mod array;
+mod html;
+mod tags;
+
+pub use array::*;
+pub use html::*;
+pub use tags::*;
