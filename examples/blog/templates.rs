@@ -9,6 +9,25 @@ use super::Post;
 pub fn index(posts: &[Post]) -> HtmlElement {
     page("Example Blog", ch![
         h1([], ch!["Blog Posts"]),
+
+        div(attrs!{class="list-group"}, posts.iter().map(|post| {
+            a(attrs!{
+                href=format!("{}.html", post.url),
+                class="list-group-item list-group-item-action d-flex gap-3 py-3",
+            }, ch![
+                div(attrs!{class="d-flex gap-2 w-100 justify-content-between"}, ch![
+                    div([], ch![
+                        h6(attrs!{class="mb-0"}, ch![post.title.to_string()]),
+                        p(attrs!{class="mb-0 opacity-75"}, ch![
+                            post.author.to_string(),
+                        ]),
+                    ]),
+                    small(attrs!{class="opacity-50 text-nowrap"}, ch![
+                        post.published.format("%Y-%m-%d").to_string(),
+                    ]),
+                ]),
+            ])
+        }).map(HtmlChild::from).collect::<Vec<_>>())
     ])
 }
 
@@ -18,11 +37,11 @@ pub fn post(post: &Post) -> HtmlElement {
     ])
 }
 
-fn page<S>(title_str: S, body_html: Vec<HtmlChild>) -> HtmlElement
+fn page<S>(title_str: S, content: Vec<HtmlChild>) -> HtmlElement
 where
     S: Into<Cow<'static, str>>,
 {
-    html(attrs!{lang="en"}, ch![
+    html(attrs!{lang="en", class="h-100"}, ch![
         head([], ch![
             meta(attrs!{charset="utf-8"}, []),
             title(title_str),
@@ -35,9 +54,9 @@ where
             }, []),
         ]),
 
-        body([], ch![
+        body(attrs!{class="d-flex flex-column h-100"}, ch![
             page_header(),
-            page_body(body_html),
+            page_body(content),
             page_footer(),
 
             script(attrs!{
@@ -69,19 +88,23 @@ fn page_header() -> HtmlElement {
     ])
 }
 
-fn page_body(body_html: Vec<HtmlChild>) -> HtmlElement {
+fn page_body(content: Vec<HtmlChild>) -> HtmlElement {
     div(attrs!{class="container"}, ch![
         article([], ch![
-            body_html,
+            content,
+            // Ensures there is some space after the content
+            p([], []),
         ])
     ])
 }
 
 fn page_footer() -> HtmlElement {
-    div(attrs!{class="container"}, ch![
-        footer(attrs!{class="py-3 my-4 border-top"}, ch![
-            p(attrs!{class="text-center text-muted"}, ch![
-                format!("Copyright {}. All rights reserved.", Local::now().year()),
+    footer(attrs!{class="footer mt-auto py-3 bg-light border-top"}, ch![
+        div(attrs!{class="container"}, ch![
+            span(attrs!{class="text-center text-muted"}, ch![
+                "Copyright ",
+                Local::now().year().to_string(),
+                ". All rights reserved.",
             ]),
         ])
     ])

@@ -10,3 +10,7 @@ html-escape = "0.2"
 
 [dev-dependencies]
 chrono = "0.4"
+lipsum = "0.8"
+rand = "0.8"
+slugmin = "1.0"
+inflector = {package = "Inflector", version = "0.11"}
