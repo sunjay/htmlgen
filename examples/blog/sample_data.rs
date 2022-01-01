@@ -10,7 +10,7 @@ use inflector::cases::titlecase::to_title_case;
 pub fn generate() -> Vec<Post> {
     let mut posts = Vec::new();
 
-    let mut rng = StdRng::seed_from_u64(10203049);
+    let mut rng = StdRng::seed_from_u64(10203051);
 
     let mut published = Local.ymd(2010, 01, 01);
     for _ in 0..15 {
@@ -48,14 +48,14 @@ fn generate_paragraph(rng: &mut StdRng) -> String {
     let base_text = lipsum_words_from_seed(rng.gen_range(10..=78), rng.gen());
     for word in base_text.split_whitespace() {
         // Apply random formatting
-        match rng.gen_range(1..=100) {
-            1..=2 => {
+        match rng.gen_range(1..=500) {
+            1..=2 if word.chars().all(|ch| ch.is_alphabetic()) => {
                 paragraph.push_str("<strong>");
                 paragraph.push_str(word);
                 paragraph.push_str("</strong>");
             },
 
-            3..=5 => {
+            3..=5 if word.chars().all(|ch| ch.is_alphabetic()) => {
                 paragraph.push_str("<em>");
                 paragraph.push_str(word);
                 paragraph.push_str("</em>");

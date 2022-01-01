@@ -10,30 +10,49 @@ pub fn index(posts: &[Post]) -> HtmlElement {
     page("Example Blog", ch![
         h1([], ch!["Blog Posts"]),
 
-        div(attrs!{class="list-group"}, posts.iter().map(|post| {
-            a(attrs!{
-                href=format!("{}.html", post.url),
-                class="list-group-item list-group-item-action d-flex gap-3 py-3",
-            }, ch![
-                div(attrs!{class="d-flex gap-2 w-100 justify-content-between"}, ch![
-                    div([], ch![
-                        h6(attrs!{class="mb-0"}, ch![post.title.to_string()]),
-                        p(attrs!{class="mb-0 opacity-75"}, ch![
-                            post.author.to_string(),
-                        ]),
-                    ]),
-                    small(attrs!{class="opacity-50 text-nowrap"}, ch![
-                        post.published.format("%Y-%m-%d").to_string(),
+        div(attrs!{class="list-group"}, ch![
+            p([], ch!["The latest breaking news and opinions from all around the web:"]),
+            posts_list(posts),
+        ])
+    ])
+}
+
+fn posts_list(posts: &[Post]) -> Vec<HtmlChild> {
+    posts.iter().rev().map(|post| {
+        a(attrs!{
+            href=format!("{}.html", post.url),
+            class="list-group-item list-group-item-action d-flex gap-3 py-3",
+        }, ch![
+            div(attrs!{class="d-flex gap-2 w-100 justify-content-between"}, ch![
+                div([], ch![
+                    h6(attrs!{class="mb-0"}, ch![post.title.to_string()]),
+                    p(attrs!{class="mb-0 opacity-75"}, ch![
+                        post.author.to_string(),
                     ]),
                 ]),
-            ])
-        }).map(HtmlChild::from).collect::<Vec<_>>())
-    ])
+                small(attrs!{class="opacity-50 text-nowrap"}, ch![
+                    post.published.format("%F").to_string(),
+                ]),
+            ]),
+        ])
+    }).map(HtmlChild::from).collect()
 }
 
 pub fn post(post: &Post) -> HtmlElement {
     page(format!("{} | Example Blog", post.title), ch![
-        //TODO
+        article([], ch![
+            h2(attrs!{class="fs-2"}, ch![post.title.to_string()]),
+            div(attrs!{class="d-flex gap-2 w-100 justify-content-between"}, ch![
+                h6(attrs!{class="opacity-75 mb-0"}, ch![
+                    em([], ch![post.author.to_string()]),
+                ]),
+                small(attrs!{class="opacity-50 text-nowrap"}, ch![
+                    post.published.format("%b %d, %Y").to_string(),
+                ]),
+            ]),
+            p([], []),
+            raw_html(post.body_html.to_string()),
+        ]),
     ])
 }
 
@@ -90,7 +109,7 @@ fn page_header() -> HtmlElement {
 
 fn page_body(content: Vec<HtmlChild>) -> HtmlElement {
     div(attrs!{class="container"}, ch![
-        article([], ch![
+        main([], ch![
             content,
             // Ensures there is some space after the content
             p([], []),
