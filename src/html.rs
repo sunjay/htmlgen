@@ -29,12 +29,13 @@ impl fmt::Display for HtmlElement {
         for attr in attrs {
             write!(f, " {}", attr)?;
         }
+        //TODO: Support self-closing tags
         write!(f, ">")?;
 
         for child in children {
             write!(f, "{}", child)?;
         }
-        if !children.is_empty() {
+        if !children.is_empty() || name == "script" {
             write!(f, "</{}>", name)?;
         }
 
@@ -70,7 +71,11 @@ impl fmt::Display for HtmlAttribute {
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub enum HtmlChild {
+    /// A single HTML element child
     Element(HtmlElement),
+    /// Multiple HTML element children
+    // This is more convenient than having to flatten out nested `Vec` types
+    Elements(Vec<HtmlChild>),
     /// Text data that will be HTML escaped
     Text(Cow<'static, str>),
     /// Raw HTML data that will not be HTML escaped
@@ -83,12 +88,27 @@ impl From<HtmlElement> for HtmlChild {
     }
 }
 
-impl<S> From<S> for HtmlChild
-where
-    S: Into<Cow<'static, str>>,
-{
-    fn from(text: S) -> Self {
+impl From<Vec<HtmlChild>> for HtmlChild {
+    fn from(children: Vec<HtmlChild>) -> Self {
+        Self::Elements(children)
+    }
+}
+
+impl From<&'static str> for HtmlChild {
+    fn from(text: &'static str) -> Self {
         Self::Text(text.into())
+    }
+}
+
+impl From<String> for HtmlChild {
+    fn from(text: String) -> Self {
+        Self::Text(text.into())
+    }
+}
+
+impl From<Cow<'static, str>> for HtmlChild {
+    fn from(text: Cow<'static, str>) -> Self {
+        Self::Text(text)
     }
 }
 
@@ -102,6 +122,12 @@ impl fmt::Display for HtmlChild {
         use HtmlChild::*;
         match self {
             Element(el) => write!(f, "{}", el),
+            Elements(children) => {
+                for child in children {
+                    write!(f, "{}", child)?;
+                }
+                Ok(())
+            }
             Text(text) => write!(f, "{}", encode_safe(text)),
             RawHtml(html) => write!(f, "{}", html),
         }

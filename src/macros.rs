@@ -8,10 +8,11 @@ macro_rules! ch {
     };
 }
 
-/// Takes a list of
+/// Produces a list of `HtmlAttribute` values from `name="value"` pairs.
 #[macro_export]
 macro_rules! attrs {
-    ($($name:ident : $value:expr),* $(,)?) => {
+    //TODO: Support attribute names that are not valid identifiers
+    ($($name:ident = $value:expr),* $(,)?) => {
         vec![
             $($crate::HtmlAttribute {
                 name: stringify!($name).into(),

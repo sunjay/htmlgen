@@ -1,3 +1,9 @@
+use std::borrow::Cow;
+
+use crate::{HtmlElement, ch};
+
+pub use crate::raw_html;
+
 macro_rules! tags {
     ($($el:ident)*) => (
         $(
@@ -73,6 +79,7 @@ tags! {
     label
     legend
     li
+    link
     main
     map
     mark
@@ -95,6 +102,7 @@ tags! {
     ruby
     s
     samp
+    script
     section
     select
     small
@@ -119,4 +127,17 @@ tags! {
     var
     video
     wbr
+}
+
+pub fn title<S>(title: S) -> HtmlElement
+where
+    S: Into<Cow<'static, str>>,
+{
+    HtmlElement {
+        name: "title".into(),
+        attrs: Vec::new(),
+        children: ch![
+            title.into(),
+        ],
+    }
 }
